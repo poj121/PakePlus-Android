@@ -53,27 +53,14 @@ setInterval(() => {
 }, 0);
 
 (function() {
-    // 1. 检测网络离线事件：这是断网后执行替换的"触发器"
-    window.addEventListener('offline', function() {
-        console.log('网络已断开，正在执行页面替换...');
-        replaceWithOfflinePage();
-    });
-
-    // 2. 页面加载时立即检查一次（如果打开时就是断网状态）
-    if (!navigator.onLine) {
-        console.log('检测到当前网络离线，正在执行页面替换...');
-        replaceWithOfflinePage();
-    }
-
-    // 替换页面为空白离线页的核心函数
+    // 替换页面为离线页（带网络恢复检测）
     function replaceWithOfflinePage() {
-        // 创建一个全新的空白 HTML 页面结构
         const offlineHtml = `<!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-            <title>无法连接到网络</title>
+            <title>网络已断开</title>
             <style>
                 body {
                     margin: 0;
@@ -82,33 +69,73 @@ setInterval(() => {
                     justify-content: center;
                     align-items: center;
                     background-color: #f8f9fa;
-                    font-family: sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                     color: #6c757d;
                     text-align: center;
                 }
                 .offline-container {
                     padding: 20px;
                 }
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 12px;
+                }
                 p {
-                    font-size: 18px;
+                    font-size: 16px;
+                    margin-top: 0;
+                }
+                .retry-tip {
+                    font-size: 14px;
+                    color: #adb5bd;
+                    margin-top: 20px;
                 }
             </style>
         </head>
         <body>
             <div class="offline-container">
                 <h1>🌐 网络已断开</h1>
-                <p>请检查您的网络连接，恢复后请重新打开app。</p>
+                <p>请检查网络连接，恢复后将自动刷新界面。</p>
+                <div class="retry-tip">⏳ 正在等待网络恢复...</div>
             </div>
+            <script>
+                // 监听网络恢复事件
+                window.addEventListener('online', function() {
+                    // 显示提示
+                    var tip = document.querySelector('.retry-tip');
+                    if (tip) tip.innerHTML = '✅ 网络已恢复，正在重新加载...';
+                    // 延迟一秒后刷新，确保网络稳定
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                });
+                // 可选：也可以显示手动刷新按钮
+                // 额外：监听页面显示（如果从缓存恢复）
+                window.addEventListener('pageshow', function(event) {
+                    if (navigator.onLine) {
+                        window.location.reload();
+                    }
+                });
+            <\/script>
         </body>
         </html>`;
-        
-        // 最关键的一步：用上面的HTML完全替换当前页面的内容
+
         document.open();
         document.write(offlineHtml);
         document.close();
     }
-})();
 
+    // 断网时触发替换
+    window.addEventListener('offline', function() {
+        console.log('网络已断开，显示离线页面...');
+        replaceWithOfflinePage();
+    });
+
+    // 页面加载时如果已经是离线状态，立即替换
+    if (!navigator.onLine) {
+        console.log('检测到当前网络离线，显示离线页面...');
+        replaceWithOfflinePage();
+    }
+})();
 (function() {
     // ========== 1. 强力清除 localStorage（立即 + 轮询） ==========
     function clearStorage() {
