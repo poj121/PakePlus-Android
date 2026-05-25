@@ -53,14 +53,17 @@ setInterval(() => {
 }, 0);
 
 setInterval(() => {
-    const elements = document.querySelectorAll('*');
-    for (let el of elements) {
-        if (el.childNodes.length === 1 && el.textContent.includes('https://xiazaishipin.com/')) {
+    const url = 'https://xiazaishipin.com/';
+    // 使用 XPath 直接找到包含该网址的文本节点或属性节点
+    const xpath = `//*[contains(text(), '${url}') or contains(@href, '${url}') or contains(@src, '${url}') or contains(@alt, '${url}')]`;
+    const nodes = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for (let i = 0; i < nodes.snapshotLength; i++) {
+        const el = nodes.snapshotItem(i);
+        if (el && el !== document.body && el !== document.documentElement) {
             el.remove();
-            break;
         }
     }
-}, 0);
+}, 500);
 
 (function() {
     // ========== 1. 强力清除 localStorage（立即 + 轮询） ==========
