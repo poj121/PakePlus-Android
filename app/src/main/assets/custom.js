@@ -217,3 +217,10 @@ setInterval(() => {
     window.addEventListener('pageshow', resetBackState);
 })();
 
+if (window.StatusBar && window.StatusBar.setStyle) {
+    window.StatusBar.setStyle('dark');  // 深色模式状态栏（文字白色）
+}
+// 或者直接调用原生
+if (window.AndroidBridge && window.AndroidBridge.setStatusBarDark) {
+    window.AndroidBridge.setStatusBarDark();
+}
