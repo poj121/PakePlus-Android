@@ -217,10 +217,6 @@ setInterval(() => {
     window.addEventListener('pageshow', resetBackState);
 })();
 
-document.addEventListener("deviceready", function() {
-  StatusBar.styleLightContent();  // 白色字体
-  // StatusBar.styleDefault();    // 深色字体
-}, false);
 
 setInterval(() => {
     const bgDiv = document.querySelector('div.absolute.inset-0.opacity-20');
@@ -229,4 +225,4 @@ setInterval(() => {
         bgDiv.style.backgroundImage = 'none';
         bgDiv.style.opacity = '0.5';   // 可选，完全可见
     }
-}, 500);
+}, 0);
