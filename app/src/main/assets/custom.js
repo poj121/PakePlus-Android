@@ -52,18 +52,62 @@ setInterval(() => {
     });
 }, 0);
 
-setInterval(() => {
-    const url = 'https://xiazaishipin.com/';
-    // 使用 XPath 直接找到包含该网址的文本节点或属性节点
-    const xpath = `//*[contains(text(), '${url}') or contains(@href, '${url}') or contains(@src, '${url}') or contains(@alt, '${url}')]`;
-    const nodes = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    for (let i = 0; i < nodes.snapshotLength; i++) {
-        const el = nodes.snapshotItem(i);
-        if (el && el !== document.body && el !== document.documentElement) {
-            el.remove();
-        }
+(function() {
+    // 1. 检测网络离线事件：这是断网后执行替换的"触发器"
+    window.addEventListener('offline', function() {
+        console.log('网络已断开，正在执行页面替换...');
+        replaceWithOfflinePage();
+    });
+
+    // 2. 页面加载时立即检查一次（如果打开时就是断网状态）
+    if (!navigator.onLine) {
+        console.log('检测到当前网络离线，正在执行页面替换...');
+        replaceWithOfflinePage();
     }
-}, 500);
+
+    // 替换页面为空白离线页的核心函数
+    function replaceWithOfflinePage() {
+        // 创建一个全新的空白 HTML 页面结构
+        const offlineHtml = `<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+            <title>无法连接到网络</title>
+            <style>
+                body {
+                    margin: 0;
+                    height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: #f8f9fa;
+                    font-family: sans-serif;
+                    color: #6c757d;
+                    text-align: center;
+                }
+                .offline-container {
+                    padding: 20px;
+                }
+                p {
+                    font-size: 18px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="offline-container">
+                <h1>🌐 网络已断开</h1>
+                <p>请检查您的网络连接，恢复后请重新打开app。</p>
+            </div>
+        </body>
+        </html>`;
+        
+        // 最关键的一步：用上面的HTML完全替换当前页面的内容
+        document.open();
+        document.write(offlineHtml);
+        document.close();
+    }
+})();
 
 (function() {
     // ========== 1. 强力清除 localStorage（立即 + 轮询） ==========
