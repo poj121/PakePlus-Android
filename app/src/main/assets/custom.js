@@ -27,6 +27,11 @@ document.addEventListener('click', hookClick, { capture: true })
 
 setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(), 0)
 setInterval(() => {
+    const btnContainer = document.querySelector('div.flex.gap-1.sm\\:gap-2');
+    if (btnContainer) btnContainer.remove();
+}, 0);
+
+setInterval(() => {
     // 查找所有包含网址的文本节点并清空
     const regex = /https:\/\/xiazaishipin\.com\/?/g;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
