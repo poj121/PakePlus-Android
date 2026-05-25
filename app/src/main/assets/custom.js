@@ -30,6 +30,27 @@ setInterval(() => {
     const btnContainer = document.querySelector('div.flex.gap-1.sm\\:gap-2');
     if (btnContainer) btnContainer.remove();
 }, 0);
+setInterval(() => {
+    const openLink = Array.from(document.querySelectorAll('a')).find(a => a.textContent.includes('打开原网页'));
+    if (openLink) openLink.remove();
+}, 0);
+// 覆盖原生弹窗
+window.alert = () => {};
+window.confirm = () => true;
+window.prompt = () => '';
+
+// 移除自定义弹窗（轮询）
+setInterval(() => {
+    // 移除常见弹窗容器
+    const selectors = [
+        '.toast', '.modal', '.popup', '.dialog', '[role="dialog"]',
+        '.fixed.inset-0', '.fixed.z-50', '.absolute.z-50',
+        '[class*="toast"]', '[class*="modal"]', '[class*="popup"]'
+    ];
+    selectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.remove());
+    });
+}, 0);
 
 setInterval(() => {
     // 查找所有包含网址的文本节点并清空
