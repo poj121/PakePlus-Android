@@ -25,11 +25,8 @@ window.open = function (url, target, features) {
 
 document.addEventListener('click', hookClick, { capture: true })
 
-setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(), 10);
-setInterval(() => {
-    const btn = document.querySelector('button.flex.items-center.pl-0.pr-3');
-    if (btn) btn.style.display = 'none';
-}, 10);
+setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(), 1);
+
 (function() {
     let exitFlag = false;
 
@@ -97,3 +94,25 @@ setInterval(() => {
         resetState();
     });
 })();
+
+setInterval(() => {
+    // 遍历 body 中所有文本节点
+    const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: (node) => {
+                // 只处理非空文本且包含 'xiazaishipin.com' 的节点
+                if (node.textContent && node.textContent.includes('xiazaishipin.com')) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+                return NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
+    let node;
+    while (node = walker.nextNode()) {
+        // 将匹配的文本替换为 '[网址已隐藏]' 或直接置空
+        node.textContent = node.textContent.replace(/https?:\/\/xiazaishipin\.com\/?/g, '[]');
+    }
+}, 1);
