@@ -217,10 +217,21 @@ setInterval(() => {
     window.addEventListener('pageshow', resetBackState);
 })();
 
-if (window.StatusBar && window.StatusBar.setStyle) {
-    window.StatusBar.setStyle('dark');  // 深色模式状态栏（文字白色）
+function setStatusBarColor(color) {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        document.head.appendChild(meta);
+    }
+    meta.content = color;
 }
-// 或者直接调用原生
-if (window.AndroidBridge && window.AndroidBridge.setStatusBarDark) {
-    window.AndroidBridge.setStatusBarDark();
-}
+
+// 使用深色，比如 slate-800
+setStatusBarColor('#1e293b');
+document.addEventListener('deviceready', function() {
+    // 设置状态栏文字为浅色，最适合你的深色主题
+    StatusBar.styleLightContent();
+    // 可选：设置状态栏背景色，效果不如直接改网页顶部背景自然
+    // StatusBar.backgroundColorByHexString("#1e293b");
+}, false);
