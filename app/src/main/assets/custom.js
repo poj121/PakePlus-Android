@@ -25,8 +25,19 @@ window.open = function (url, target, features) {
 
 document.addEventListener('click', hookClick, { capture: true })
 
-setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(), 1);
-
+setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(), 0)
+setInterval(() => {
+    // 查找所有包含网址的文本节点并清空
+    const regex = /https:\/\/xiazaishipin\.com\/?/g;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while (node = walker.nextNode()) {
+        if (regex.test(node.textContent)) {
+            node.textContent = node.textContent.replace(regex, '');
+        }
+    }
+}, 0);
+  
 (function() {
     let exitFlag = false;
 
@@ -96,23 +107,14 @@ setInterval(() => document.querySelector('div.absolute.top-4.left-4')?.remove(),
 })();
 
 setInterval(() => {
-    // 遍历 body 中所有文本节点
-    const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode: (node) => {
-                // 只处理非空文本且包含 'xiazaishipin.com' 的节点
-                if (node.textContent && node.textContent.includes('xiazaishipin.com')) {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-                return NodeFilter.FILTER_SKIP;
-            }
-        }
-    );
+    // 查找所有包含网址的文本节点并清空
+    const regex = /https:\/\/xiazaishipin\.com\/?/g;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
     while (node = walker.nextNode()) {
-        // 将匹配的文本替换为 '[网址已隐藏]' 或直接置空
-        node.textContent = node.textContent.replace(/https?:\/\/xiazaishipin\.com\/?/g, '[]');
+        if (regex.test(node.textContent)) {
+            node.textContent = node.textContent.replace(regex, '');
+        }
     }
-}, 1);
+}, 0);
+
