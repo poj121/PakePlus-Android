@@ -217,12 +217,3 @@ setInterval(() => {
     window.addEventListener('pageshow', resetBackState);
 })();
 
-function setStatusBarColor(color) {
-    let meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        document.head.appendChild(meta);
-    }
-    meta.content = color;
-}
