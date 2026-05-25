@@ -107,7 +107,6 @@ setInterval(() => {
 })();
 
 setInterval(() => {
-    // 查找所有包含网址的文本节点并清空
     const regex = /https:\/\/xiazaishipin\.com\/?/g;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
