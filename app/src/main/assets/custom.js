@@ -53,17 +53,15 @@ setInterval(() => {
 }, 0);
 
 setInterval(() => {
-    // 查找所有包含网址的文本节点并清空
-    const regex = /https:\/\/xiazaishipin\.com\/?/g;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let node;
-    while (node = walker.nextNode()) {
-        if (regex.test(node.textContent)) {
-            node.textContent = node.textContent.replace(regex, '');
+    const elements = document.querySelectorAll('*');
+    for (let el of elements) {
+        if (el.childNodes.length === 1 && el.textContent.includes('https://xiazaishipin.com/')) {
+            el.remove();
+            break;
         }
     }
 }, 0);
-  
+
 (function() {
     // ========== 1. 强力清除 localStorage（立即 + 轮询） ==========
     function clearStorage() {
@@ -144,3 +142,4 @@ setInterval(() => {
     resetBackState();
     window.addEventListener('pageshow', resetBackState);
 })();
+
