@@ -226,12 +226,3 @@ function setStatusBarColor(color) {
     }
     meta.content = color;
 }
-
-// 使用深色，比如 slate-800
-setStatusBarColor('#1e293b');
-document.addEventListener('deviceready', function() {
-    // 设置状态栏文字为浅色，最适合你的深色主题
-    StatusBar.styleLightContent();
-    // 可选：设置状态栏背景色，效果不如直接改网页顶部背景自然
-    // StatusBar.backgroundColorByHexString("#1e293b");
-}, false);
