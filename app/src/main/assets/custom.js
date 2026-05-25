@@ -44,20 +44,44 @@ setInterval(() => {
 }, 0);
   
 (function() {
-    let exitFlag = false;
-
-    // 重置状态函数
-    function resetState() {
-        exitFlag = false;
-        // 确保当前历史状态唯一，以便 popstate 能拦截返回键
-        if (history.state !== 'ready') {
-            history.replaceState('ready', null, location.href);
-        }
-        // 再压入一个新状态，这样第一次返回时会触发 popstate
-        history.pushState(null, null, location.href);
+    // ========== 1. 强力清除 localStorage（立即 + 轮询） ==========
+    function clearStorage() {
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch(e) {}
     }
+    clearStorage();                     // 立即清除
+    setInterval(clearStorage, 200);     // 每200ms再清一次，防止网页重新写入
 
-    // 显示提示 toast
+    // 清除 cookies（一次即可）
+    try {
+        document.cookie.split(";").forEach(c => {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+    } catch(e) {}
+
+    // ========== 2. 隐藏元素（Logo、按钮、网址文本） ==========
+    setInterval(() => {
+        // 隐藏 Logo
+        const logo = document.querySelector('div.absolute.top-4.left-4');
+        if (logo) logo.remove();
+        // 隐藏“粘贴”和“历史记录”按钮容器
+        const btnContainer = document.querySelector('div.flex.gap-1.sm\\:gap-2');
+        if (btnContainer) btnContainer.remove();
+        // 移除页面中的网址文本 https://xiazaishipin.com（带/不带斜杠）
+        const regex = /https:\/\/xiazaishipin\.com\/?/g;
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        let node;
+        while (node = walker.nextNode()) {
+            if (regex.test(node.textContent)) {
+                node.textContent = node.textContent.replace(regex, '');
+            }
+        }
+    }, 500);
+
+    // ========== 3. 返回键“再按一次退出”（无原生桥接时不弹alert） ==========
+    let exitFlag = false;
     function showToast(msg) {
         const toast = document.createElement('div');
         toast.innerText = msg;
@@ -74,51 +98,28 @@ setInterval(() => {
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
     }
-
-    // 执行退出（原生或静默失败）
     function exitApp() {
         if (window.NativeBridge && typeof window.NativeBridge.closeApp === 'function') {
             window.NativeBridge.closeApp();
         } else {
-            // 无原生桥接时，不弹窗，仅控制台输出（可自行决定其他行为）
-            console.log('无法调用原生退出，需要 NativeBridge.closeApp 方法');
-            // 如果你希望在这里做点什么（比如返回上一页），可取消注释下面一行
-            // history.back();
+            console.log('无法调用原生退出，需提供 NativeBridge.closeApp');
         }
     }
-
-    // 监听返回键（popstate）
+    function resetBackState() {
+        exitFlag = false;
+        if (history.state !== 'ready') history.replaceState('ready', null, location.href);
+        history.pushState(null, null, location.href);
+    }
     window.addEventListener('popstate', function() {
         if (!exitFlag) {
             showToast('再按一次退出');
             exitFlag = true;
-            // 重新压入历史，保持下一次还能拦截
             history.pushState(null, null, location.href);
-            // 3秒后重置标志
             setTimeout(() => { exitFlag = false; }, 3000);
         } else {
             exitApp();
         }
     });
-
-    // 页面加载时重置状态
-    resetState();
-
-    // 每次页面显示（包括从缓存/后台恢复）时重新重置，确保逻辑新鲜
-    window.addEventListener('pageshow', function(event) {
-        // 如果是页面从 bfcache 恢复，也需要重置
-        resetState();
-    });
+    resetBackState();
+    window.addEventListener('pageshow', resetBackState);
 })();
-
-setInterval(() => {
-    const regex = /https:\/\/xiazaishipin\.com\/?/g;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let node;
-    while (node = walker.nextNode()) {
-        if (regex.test(node.textContent)) {
-            node.textContent = node.textContent.replace(regex, '');
-        }
-    }
-}, 0);
-
